@@ -8,12 +8,14 @@ export const toCsv = (rows: CsvRow[]): string => {
     return '';
   }
 
-  const headers = Array.from(
-    rows.reduce((acc, row) => {
-      Object.keys(row).forEach((key) => acc.add(key));
-      return acc;
-    }, new Set<string>()),
-  );
+  const headers: string[] = [];
+  rows.forEach((row) => {
+    Object.keys(row).forEach((key) => {
+      if (!headers.includes(key)) {
+        headers.push(key);
+      }
+    });
+  });
 
   const csvRows = rows.map((row) => headers.map((header) => formatCell(row[header])).join(','));
 

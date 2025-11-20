@@ -5,6 +5,7 @@ import Card from '../ui/Card';
 import Button from '../ui/Button';
 import HStack from '../layout/HStack';
 import { AccessibilitySettings, Screen as ScreenType } from '../lib/types';
+import BottomNav from './navigation/BottomNav';
 
 export type SettingsProps = {
   accessibility: AccessibilitySettings;
@@ -28,20 +29,16 @@ const Settings: React.FC<SettingsProps> = ({
       title="Settings"
       description="Adjust accessibility, theme, and privacy preferences."
       bottomNav={
-        <HStack justify="space-between" wrap>
-          <button type="button" onClick={() => go('home')} style={navButtonStyle(false)}>
-            Home
-          </button>
-          <button type="button" onClick={() => go('scan-idle')} style={navButtonStyle(false)}>
-            Scan
-          </button>
-          <button type="button" onClick={() => go('journal-list')} style={navButtonStyle(false)}>
-            Journal
-          </button>
-          <button type="button" onClick={() => go('settings')} style={navButtonStyle(true)}>
-            Settings
-          </button>
-        </HStack>
+        <BottomNav
+          active="settings"
+          onNavigate={go}
+          items={[
+            { label: 'Home', screen: 'home' },
+            { label: 'Scan', screen: 'scan-idle' },
+            { label: 'Journal', screen: 'journal-list' },
+            { label: 'Settings', screen: 'settings' },
+          ]}
+        />
       }
     >
       <Stack gap="lg">
@@ -133,16 +130,5 @@ const labelStyle: React.CSSProperties = {
   alignItems: 'center',
   gap: 'var(--space-2)',
 };
-
-const navButtonStyle = (active: boolean): React.CSSProperties => ({
-  flex: '1 1 25%',
-  textAlign: 'center',
-  padding: 'var(--space-2)',
-  background: 'transparent',
-  border: 'none',
-  color: active ? 'var(--color-light-green)' : 'var(--color-text-secondary)',
-  fontWeight: active ? 'var(--font-weight-bold)' : 'var(--font-weight-regular)',
-  cursor: 'pointer',
-});
 
 export default Settings;

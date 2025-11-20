@@ -1,6 +1,13 @@
 import React, { Dispatch, useCallback, useEffect, useMemo, useState } from 'react';
 import { AccessibilitySettings, JournalEntryType, PlantDetails, Screen } from './lib/types';
-import { enableDarkMode, setTextScale, toggleHighContrast } from './lib/theme';
+import { ALLOWED_TRANSITIONS } from './lib/navigation';
+import {
+  enableDarkMode,
+  setNarrationEnabled,
+  setReduceMotion,
+  setTextScale,
+  toggleHighContrast,
+} from './lib/theme';
 import Welcome from './components/onboarding/Welcome';
 import Permissions from './components/onboarding/Permissions';
 import AccessibilitySetup from './components/onboarding/AccessibilitySetup';
@@ -59,44 +66,6 @@ const STORAGE_KEYS = {
   camera: 'rr_camera',
   journal: 'rr_journal',
 } as const;
-
-const ALLOWED_TRANSITIONS: Record<Screen, Screen[]> = {
-  welcome: ['permissions', 'home'],
-  permissions: ['accessibility', 'welcome', 'home', 'error-camera'],
-  accessibility: ['privacy', 'home'],
-  privacy: ['home'],
-  home: [
-    'scan-idle',
-    'scan-detecting',
-    'scan-detected',
-    'cultural',
-    'stem',
-    'simulation',
-    'journal-list',
-    'journal-entry',
-    'settings',
-    'educator',
-    'error-camera',
-    'offline',
-    'no-plant',
-    'poster',
-    'welcome',
-  ],
-  'scan-idle': ['scan-detecting', 'home', 'error-camera', 'no-plant'],
-  'scan-detecting': ['scan-detected', 'scan-idle', 'home'],
-  'scan-detected': ['cultural', 'stem', 'scan-idle', 'home'],
-  cultural: ['stem', 'simulation', 'home', 'journal-entry', 'journal-list', 'scan-idle'],
-  stem: ['cultural', 'simulation', 'home', 'journal-entry', 'journal-list', 'scan-idle'],
-  simulation: ['home', 'journal-entry', 'journal-list', 'stem', 'cultural'],
-  'journal-list': ['journal-entry', 'home'],
-  'journal-entry': ['journal-list', 'home'],
-  settings: ['home', 'welcome'],
-  educator: ['home'],
-  'error-camera': ['settings', 'home', 'permissions'],
-  offline: ['home', 'journal-list', 'journal-entry'],
-  'no-plant': ['scan-idle', 'home'],
-  poster: ['home', 'scan-idle'],
-};
 
 const SCREEN_HEADINGS: Record<Screen, string> = {
   welcome: 'Welcome',
@@ -195,6 +164,7 @@ const App: React.FC = () => {
   const [currentPlant, setCurrentPlant] = useState<PlantDetails | null>(null);
   const [theme, setTheme] = useState<ThemeMode>('light');
   const [isOffline, setIsOffline] = useState<boolean>(false);
+  const [liveAnnouncement, setLiveAnnouncement] = useState<string>('');
 
   const setAccessibilityState = useCallback((settings: AccessibilitySettings) => {
     setAccessibility(settings);
@@ -357,6 +327,21 @@ const App: React.FC = () => {
   useEffect(() => {
     toggleHighContrast(accessibility.highContrast);
   }, [accessibility.highContrast]);
+
+  useEffect(() => {
+    setReduceMotion(accessibility.reduceMotion);
+  }, [accessibility.reduceMotion]);
+
+  useEffect(() => {
+    setNarrationEnabled(accessibility.narration);
+
+    if (!accessibility.narration) {
+      setLiveAnnouncement('');
+      return;
+    }
+
+    setLiveAnnouncement(`Navigated to ${SCREEN_HEADINGS[currentScreen]}`);
+  }, [accessibility.narration, currentScreen]);
 
   useEffect(() => {
     enableDarkMode(theme === 'dark');
@@ -559,6 +544,25 @@ const App: React.FC = () => {
           >
             Offline tips
           </button>
+        </div>
+      )}
+      {accessibility.narration && (
+        <div
+          aria-live="polite"
+          style={{
+            position: 'absolute',
+            width: 1,
+            height: 1,
+            margin: -1,
+            padding: 0,
+            border: 0,
+            overflow: 'hidden',
+            clip: 'rect(0 0 0 0)',
+            clipPath: 'inset(50%)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {liveAnnouncement}
         </div>
       )}
       {currentView}

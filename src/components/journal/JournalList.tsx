@@ -5,6 +5,7 @@ import Card from '../../ui/Card';
 import Button from '../../ui/Button';
 import HStack from '../../layout/HStack';
 import Icon from '../../ui/Icon';
+import BottomNav from '../navigation/BottomNav';
 import { JournalEntryType, Screen as ScreenType } from '../../lib/types';
 
 export type JournalListProps = {
@@ -34,24 +35,16 @@ const JournalList: React.FC<JournalListProps> = ({ entries, go }) => {
       title="Journal"
       description="Capture reflections, photos, and standards alignment from each plant exploration."
       bottomNav={
-        <HStack justify="space-between" wrap>
-          <button type="button" onClick={() => go('home')} style={navButtonStyle(false)}>
-            <Icon name="home" />
-            <span>Home</span>
-          </button>
-          <button type="button" onClick={() => go('scan-idle')} style={navButtonStyle(false)}>
-            <Icon name="scan" />
-            <span>Scan</span>
-          </button>
-          <button type="button" onClick={() => go('journal-list')} style={navButtonStyle(true)}>
-            <Icon name="journal" />
-            <span>Journal</span>
-          </button>
-          <button type="button" onClick={() => go('settings')} style={navButtonStyle(false)}>
-            <Icon name="settings" />
-            <span>Settings</span>
-          </button>
-        </HStack>
+        <BottomNav
+          active="journal-list"
+          onNavigate={go}
+          items={[
+            { label: 'Home', screen: 'home', icon: <Icon name="home" /> },
+            { label: 'Scan', screen: 'scan-idle', icon: <Icon name="scan" /> },
+            { label: 'Journal', screen: 'journal-list', icon: <Icon name="journal" /> },
+            { label: 'Settings', screen: 'settings', icon: <Icon name="settings" /> },
+          ]}
+        />
       }
     >
       <Stack gap="lg">
@@ -118,19 +111,6 @@ const JournalList: React.FC<JournalListProps> = ({ entries, go }) => {
     </Screen>
   );
 };
-
-const navButtonStyle = (active: boolean): React.CSSProperties => ({
-  flex: '1 1 25%',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  gap: 'var(--space-1)',
-  padding: 'var(--space-2)',
-  background: 'transparent',
-  border: 'none',
-  color: active ? 'var(--color-light-green)' : 'var(--color-text-secondary)',
-  fontWeight: active ? 'var(--font-weight-bold)' : 'var(--font-weight-regular)',
-});
 
 const fabStyle: React.CSSProperties = {
   position: 'fixed',

@@ -49,6 +49,14 @@ const downloadCsv = (content: string, filename: string) => {
   URL.revokeObjectURL(url);
 };
 
+const generateEntryId = (): string => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+
+  return `journal-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+};
+
 const JournalEntry: React.FC<JournalEntryProps> = ({ plant, addJournalEntry, go }) => {
   const [plantName, setPlantName] = useState<string>(plant?.commonName ?? plant?.name ?? '');
   const [route, setRoute] = useState<'cultural' | 'stem'>('cultural');
@@ -82,7 +90,7 @@ const JournalEntry: React.FC<JournalEntryProps> = ({ plant, addJournalEntry, go 
     }
 
     addJournalEntry({
-      id: crypto.randomUUID(),
+      id: generateEntryId(),
       plantName: plantName.trim(),
       route,
       notes: notes.trim(),

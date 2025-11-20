@@ -50,6 +50,36 @@ export const enableDarkMode = (enabled: boolean, root?: HTMLElement): void => {
 };
 
 /**
+ * Reduces motion by toggling a class that dampens transitions and animations.
+ * @param enabled When true, motion is minimized.
+ * @param root Optional root element; defaults to `document.documentElement` when available.
+ */
+export const setReduceMotion = (enabled: boolean, root?: HTMLElement): void => {
+  const target = resolveRoot(root);
+
+  if (!target) {
+    return;
+  }
+
+  target.classList.toggle('reduce-motion', enabled);
+};
+
+/**
+ * Marks narration preference for downstream accessibility helpers.
+ * @param enabled When true, opts into narration-friendly behavior.
+ * @param root Optional root element; defaults to `document.documentElement` when available.
+ */
+export const setNarrationEnabled = (enabled: boolean, root?: HTMLElement): void => {
+  const target = resolveRoot(root);
+
+  if (!target) {
+    return;
+  }
+
+  target.dataset.narration = enabled ? 'on' : 'off';
+};
+
+/**
  * Adjusts the root font-size multiplier to support accessibility text scaling.
  * @param size Desired text size scale.
  * @param root Optional root element; defaults to `document.documentElement` when available.
