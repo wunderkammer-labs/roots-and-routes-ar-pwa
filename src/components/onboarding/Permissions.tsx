@@ -6,19 +6,10 @@ import Icon from '../../ui/Icon';
 import { Screen as ScreenType } from '../../lib/types';
 
 export type PermissionsProps = {
-  /**
-   * Navigates to the next screen in the onboarding flow.
-   */
   go: (screen: ScreenType) => void;
-  /**
-   * Updates the camera permission flag.
-   */
   setCameraGranted: (granted: boolean) => void;
 };
 
-/**
- * Camera permission request with clear actions to continue through onboarding.
- */
 const Permissions: React.FC<PermissionsProps> = ({ go, setCameraGranted }) => {
   const handleContinue = () => {
     setCameraGranted(true);

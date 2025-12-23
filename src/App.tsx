@@ -1,6 +1,12 @@
-import React, { Dispatch, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AccessibilitySettings, JournalEntryType, PlantDetails, Screen } from './lib/types';
 import { ALLOWED_TRANSITIONS } from './lib/navigation';
+import { STORAGE_KEYS, ThemeMode } from './lib/constants';
+import {
+  isAccessibilitySettings,
+  isJournalEntryArray,
+  isThemeMode,
+} from './lib/validation';
 import {
   enableDarkMode,
   setNarrationEnabled,
@@ -30,27 +36,24 @@ import OfflineScreen from './components/errors/Offline';
 import NoPlant from './components/errors/NoPlant';
 import MarketingPoster from './components/MarketingPoster';
 
-type ThemeMode = 'light' | 'dark';
-
-type ScreenContext = {
+type AppContextState = {
   go: (screen: Screen) => void;
   accessibility: AccessibilitySettings;
-  setAccessibility: (settings: AccessibilitySettings) => void;
   updateAccessibility: (updates: Partial<AccessibilitySettings>) => void;
   theme: ThemeMode;
   setTheme: (mode: ThemeMode) => void;
   cameraGranted: boolean;
   setCameraGranted: (granted: boolean) => void;
   journal: JournalEntryType[];
-  setJournal: Dispatch<React.SetStateAction<JournalEntryType[]>>;
+  addJournalEntry: (entry: Omit<JournalEntryType, 'date'>) => void;
   currentPlant: PlantDetails | null;
-  setCurrentPlant: Dispatch<React.SetStateAction<PlantDetails | null>>;
+  setCurrentPlant: (plant: PlantDetails | null) => void;
 };
 
-type ScreenPlaceholderProps = {
+type PlaceholderProps = {
   screen: Screen;
   description?: string;
-  context: ScreenContext;
+  context: AppContextState;
 };
 
 const DEFAULT_ACCESSIBILITY: AccessibilitySettings = {
@@ -59,13 +62,6 @@ const DEFAULT_ACCESSIBILITY: AccessibilitySettings = {
   reduceMotion: false,
   narration: false,
 };
-
-const STORAGE_KEYS = {
-  accessibility: 'rr_accessibility',
-  theme: 'rr_theme',
-  camera: 'rr_camera',
-  journal: 'rr_journal',
-} as const;
 
 const SCREEN_HEADINGS: Record<Screen, string> = {
   welcome: 'Welcome',
@@ -89,58 +85,22 @@ const SCREEN_HEADINGS: Record<Screen, string> = {
   poster: 'Roots & Routes Poster',
 };
 
-const isAccessibilitySettings = (value: unknown): value is AccessibilitySettings => {
-  if (!value || typeof value !== 'object') {
-    return false;
-  }
-
-  const candidate = value as Partial<AccessibilitySettings>;
-  const textSizes: AccessibilitySettings['textSize'][] = ['normal', 'large', 'xl'];
-
-  return (
-    textSizes.includes(candidate.textSize as AccessibilitySettings['textSize']) &&
-    typeof candidate.highContrast === 'boolean' &&
-    typeof candidate.reduceMotion === 'boolean' &&
-    typeof candidate.narration === 'boolean'
-  );
-};
-
-const isJournalEntry = (value: unknown): value is JournalEntryType => {
-  if (!value || typeof value !== 'object') {
-    return false;
-  }
-
-  const candidate = value as Partial<JournalEntryType>;
-
-  return (
-    typeof candidate.id === 'string' &&
-    typeof candidate.plantName === 'string' &&
-    typeof candidate.date === 'string' &&
-    (candidate.route === 'cultural' || candidate.route === 'stem') &&
-    typeof candidate.notes === 'string'
-  );
-};
-
-const isJournalEntryArray = (value: unknown): value is JournalEntryType[] =>
-  Array.isArray(value) && value.every(isJournalEntry);
-
-const ScreenPlaceholder: React.FC<ScreenPlaceholderProps> = ({ screen, description, context }) => {
-  const allowedTargets = useMemo(() => ALLOWED_TRANSITIONS[screen] ?? [], [screen]);
+const Placeholder: React.FC<PlaceholderProps> = ({ screen, description, context }) => {
+  const targets = useMemo(() => ALLOWED_TRANSITIONS[screen] ?? [], [screen]);
 
   return (
     <ScreenLayout
       title={SCREEN_HEADINGS[screen]}
       description={
-        description ??
-        'This screen is under construction. Use the navigation buttons below to move through the flow.'
+        description ?? 'This screen is under construction. Use the buttons below to navigate.'
       }
     >
       <Stack gap="md">
-        {allowedTargets.length > 0 && (
+        {targets.length > 0 && (
           <Stack gap="sm">
-            <p style={{ margin: 0 }}>Available routes from this screen:</p>
+            <p style={{ margin: 0 }}>Available routes:</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
-              {allowedTargets.map((target) => (
+              {targets.map((target) => (
                 <Button key={target} variant="secondary" onClick={() => context.go(target)}>
                   Go to {SCREEN_HEADINGS[target]}
                 </Button>
@@ -153,56 +113,33 @@ const ScreenPlaceholder: React.FC<ScreenPlaceholderProps> = ({ screen, descripti
   );
 };
 
-/**
- * Root application component controlling navigation, persistence, and accessibility state.
- */
 const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>('welcome');
   const [accessibility, setAccessibility] = useState<AccessibilitySettings>(DEFAULT_ACCESSIBILITY);
-  const [cameraGranted, setCameraGranted] = useState<boolean>(false);
+  const [cameraGranted, setCameraGranted] = useState(false);
   const [journal, setJournal] = useState<JournalEntryType[]>([]);
   const [currentPlant, setCurrentPlant] = useState<PlantDetails | null>(null);
   const [theme, setTheme] = useState<ThemeMode>('light');
-  const [isOffline, setIsOffline] = useState<boolean>(false);
-  const [liveAnnouncement, setLiveAnnouncement] = useState<string>('');
-
-  const setAccessibilityState = useCallback((settings: AccessibilitySettings) => {
-    setAccessibility(settings);
-  }, []);
+  const [isOffline, setIsOffline] = useState(false);
+  const [announcement, setAnnouncement] = useState('');
 
   const updateAccessibility = useCallback((updates: Partial<AccessibilitySettings>) => {
-    setAccessibility((prev) => ({
-      ...prev,
-      ...updates,
-    }));
+    setAccessibility((prev) => ({ ...prev, ...updates }));
   }, []);
 
-  const setThemeMode = useCallback((mode: ThemeMode) => {
+  const updateTheme = useCallback((mode: ThemeMode) => {
     setTheme(mode);
   }, []);
 
-  const setCameraPermission = useCallback((granted: boolean) => {
+  const updateCameraPermission = useCallback((granted: boolean) => {
     setCameraGranted(granted);
   }, []);
 
-  const handlePlantDetected = useCallback((plant: PlantDetails) => {
-    setCurrentPlant(plant);
-  }, []);
-
   const addJournalEntry = useCallback(
-    (entry: {
-      id: string;
-      plantName: string;
-      route: 'cultural' | 'stem';
-      notes: string;
-      standards?: string[];
-    }) => {
+    (entry: Omit<JournalEntryType, 'date'>) => {
       setJournal((prev) => [
         ...prev,
-        {
-          ...entry,
-          date: new Date().toISOString(),
-        },
+        { ...entry, date: new Date().toISOString() },
       ]);
     },
     [],
@@ -236,7 +173,7 @@ const App: React.FC = () => {
       }
 
       const storedTheme = localStorage.getItem(STORAGE_KEYS.theme);
-      if (storedTheme === 'light' || storedTheme === 'dark') {
+      if (isThemeMode(storedTheme)) {
         setTheme(storedTheme);
       }
 
@@ -334,13 +271,11 @@ const App: React.FC = () => {
 
   useEffect(() => {
     setNarrationEnabled(accessibility.narration);
-
     if (!accessibility.narration) {
-      setLiveAnnouncement('');
+      setAnnouncement('');
       return;
     }
-
-    setLiveAnnouncement(`Navigated to ${SCREEN_HEADINGS[currentScreen]}`);
+    setAnnouncement(`Navigated to ${SCREEN_HEADINGS[currentScreen]}`);
   }, [accessibility.narration, currentScreen]);
 
   useEffect(() => {
@@ -376,44 +311,38 @@ const App: React.FC = () => {
     });
   }, []);
 
-  const handleRetryConnection = useCallback(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-    setIsOffline(!window.navigator.onLine);
-    if (window.navigator.onLine) {
-      go('home');
-    }
+  const retryConnection = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const online = window.navigator.onLine;
+    setIsOffline(!online);
+    if (online) go('home');
   }, [go]);
 
-  const screenContext = useMemo<ScreenContext>(
+  const appContext = useMemo<AppContextState>(
     () => ({
       go,
       accessibility,
-      setAccessibility: setAccessibilityState,
       updateAccessibility,
       theme,
-      setTheme: setThemeMode,
+      setTheme: updateTheme,
       cameraGranted,
-      setCameraGranted: setCameraPermission,
+      setCameraGranted: updateCameraPermission,
       journal,
-      setJournal,
+      addJournalEntry,
       currentPlant,
       setCurrentPlant,
     }),
     [
       go,
       accessibility,
-      setAccessibilityState,
       updateAccessibility,
       theme,
-      setThemeMode,
+      updateTheme,
       cameraGranted,
-      setCameraPermission,
+      updateCameraPermission,
       journal,
-      setJournal,
+      addJournalEntry,
       currentPlant,
-      setCurrentPlant,
     ],
   );
 
@@ -423,12 +352,11 @@ const App: React.FC = () => {
         case 'welcome':
           return <Welcome go={go} />;
         case 'permissions':
-          return <Permissions go={go} setCameraGranted={setCameraPermission} />;
+          return <Permissions go={go} setCameraGranted={updateCameraPermission} />;
         case 'accessibility':
           return (
             <AccessibilitySetup
               accessibility={accessibility}
-              setAccessibility={setAccessibilityState}
               updateAccessibility={updateAccessibility}
               go={go}
             />
@@ -438,7 +366,7 @@ const App: React.FC = () => {
         case 'scan-idle':
           return <ScanIdle go={go} cameraGranted={cameraGranted} />;
         case 'scan-detecting':
-          return <ScanDetecting go={go} setCurrentPlant={handlePlantDetected} />;
+          return <ScanDetecting go={go} setCurrentPlant={setCurrentPlant} />;
         case 'scan-detected':
           return <ScanDetected go={go} currentPlant={currentPlant} />;
         case 'cultural':
@@ -451,7 +379,7 @@ const App: React.FC = () => {
         case 'error-camera':
           return <ErrorCamera go={go} />;
         case 'offline':
-          return <OfflineScreen go={go} retry={handleRetryConnection} />;
+          return <OfflineScreen go={go} retry={retryConnection} />;
         case 'no-plant':
           return <NoPlant go={go} />;
         case 'poster':
@@ -466,7 +394,7 @@ const App: React.FC = () => {
               accessibility={accessibility}
               updateAccessibility={updateAccessibility}
               theme={theme}
-              setTheme={setThemeMode}
+              setTheme={updateTheme}
               resetApp={resetApp}
               go={go}
             />
@@ -480,11 +408,11 @@ const App: React.FC = () => {
               accessibility={accessibility}
               updateAccessibility={updateAccessibility}
               theme={theme}
-              setTheme={setThemeMode}
+              setTheme={updateTheme}
             />
           );
         default:
-          return <ScreenPlaceholder screen={screen} context={screenContext} />;
+          return <Placeholder screen={screen} context={appContext} />;
       }
     },
     [
@@ -492,17 +420,15 @@ const App: React.FC = () => {
       go,
       cameraGranted,
       currentPlant,
-      handlePlantDetected,
       addJournalEntry,
       journal,
       resetApp,
-      handleRetryConnection,
+      retryConnection,
       theme,
-      screenContext,
-      setAccessibilityState,
+      appContext,
       updateAccessibility,
-      setCameraPermission,
-      setThemeMode,
+      updateCameraPermission,
+      updateTheme,
     ],
   );
 
@@ -562,7 +488,7 @@ const App: React.FC = () => {
             whiteSpace: 'nowrap',
           }}
         >
-          {liveAnnouncement}
+          {announcement}
         </div>
       )}
       {currentView}

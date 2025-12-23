@@ -8,28 +8,14 @@ import Button from '../ui/Button';
 import Icon from '../ui/Icon';
 import ImageWithFallback from './figma/ImageWithFallback';
 import { AccessibilitySettings, Screen as ScreenType } from '../lib/types';
+import { TEXT_SIZE_OPTIONS, TEXT_SIZE_LABELS, ThemeMode, DEFAULT_NAV_ITEMS } from '../lib/constants';
 
 export type HomeProps = {
-  /**
-   * Moves the learner between screens.
-   */
   go: (screen: ScreenType) => void;
-  /**
-   * Current accessibility configuration.
-   */
   accessibility: AccessibilitySettings;
-  /**
-   * Updates accessibility preferences.
-   */
   updateAccessibility: (updates: Partial<AccessibilitySettings>) => void;
-  /**
-   * Toggles dark or light theme.
-   */
-  theme: 'light' | 'dark';
-  /**
-   * Updates the global theme mode.
-   */
-  setTheme: (mode: 'light' | 'dark') => void;
+  theme: ThemeMode;
+  setTheme: (mode: ThemeMode) => void;
 };
 
 type QuickAction = {
@@ -39,7 +25,7 @@ type QuickAction = {
   onClick: () => void;
 };
 
-const QUICK_ACTIONS: (go: (screen: ScreenType) => void) => QuickAction[] = (go) => [
+const createQuickActions = (go: (screen: ScreenType) => void): QuickAction[] => [
   {
     label: 'Start Exploring (AR Scan)',
     description: 'Identify nearby plants and launch immersive stories.',
@@ -54,12 +40,14 @@ const QUICK_ACTIONS: (go: (screen: ScreenType) => void) => QuickAction[] = (go) 
   },
 ];
 
-const SECONDARY_CARDS: (go: (screen: ScreenType) => void) => Array<{
+type SecondaryCard = {
   title: string;
   description: string;
   icon: React.ReactNode;
   action: () => void;
-}> = (go) => [
+};
+
+const createSecondaryCards = (go: (screen: ScreenType) => void): SecondaryCard[] => [
   {
     title: 'Journal',
     description: 'Capture reflections and photos from today’s explorations.',
@@ -80,23 +68,16 @@ const SECONDARY_CARDS: (go: (screen: ScreenType) => void) => Array<{
   },
 ];
 
-const BOTTOM_NAV: Array<{
-  label: string;
-  icon: React.ReactNode;
-  screen: ScreenType;
-}> = [
-  { label: 'Home', icon: <Icon name="home" />, screen: 'home' },
-  { label: 'Scan', icon: <Icon name="scan" />, screen: 'scan-idle' },
-  { label: 'Journal', icon: <Icon name="journal" />, screen: 'journal-list' },
-  { label: 'Settings', icon: <Icon name="settings" />, screen: 'settings' },
-];
+const NAV_ICONS: Record<string, React.ReactNode> = {
+  home: <Icon name="home" />,
+  'scan-idle': <Icon name="scan" />,
+  'journal-list': <Icon name="journal" />,
+  settings: <Icon name="settings" />,
+};
 
-/**
- * Primary home screen presenting quick actions and navigation entry points.
- */
 const Home: React.FC<HomeProps> = ({ go, accessibility, updateAccessibility, theme, setTheme }) => {
-  const quickActions = QUICK_ACTIONS(go);
-  const secondaryCards = SECONDARY_CARDS(go);
+  const quickActions = createQuickActions(go);
+  const secondaryCards = createSecondaryCards(go);
 
   return (
     <Screen
@@ -121,7 +102,7 @@ const Home: React.FC<HomeProps> = ({ go, accessibility, updateAccessibility, the
                 variant="outline"
                 onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
               >
-                {theme === 'light' ? 'Enable dark mode' : 'Enable light mode'}
+                {theme === 'light' ? 'Dark mode' : 'Light mode'}
               </Button>
             </HStack>
           </Container>
@@ -129,7 +110,7 @@ const Home: React.FC<HomeProps> = ({ go, accessibility, updateAccessibility, the
       }
       bottomNav={
         <HStack justify="space-between" wrap>
-          {BOTTOM_NAV.map((item) => (
+          {DEFAULT_NAV_ITEMS.map((item) => (
             <button
               key={item.label}
               type="button"
@@ -149,9 +130,10 @@ const Home: React.FC<HomeProps> = ({ go, accessibility, updateAccessibility, the
                     : 'var(--color-text-secondary)',
                 fontWeight:
                   item.screen === 'home' ? 'var(--font-weight-bold)' : 'var(--font-weight-regular)',
+                cursor: 'pointer',
               }}
             >
-              {item.icon}
+              {NAV_ICONS[item.screen]}
               <span>{item.label}</span>
             </button>
           ))}
@@ -241,21 +223,18 @@ const Home: React.FC<HomeProps> = ({ go, accessibility, updateAccessibility, the
         <section aria-label="Accessibility quick settings">
           <Card
             title="Accessibility"
-            subtitle="Adjust text size to fit the moment. More options await in Settings."
+            subtitle="Adjust text size to fit the moment. More options in Settings."
           >
             <HStack gap="sm" wrap>
-              {(['normal', 'large', 'xl'] as AccessibilitySettings['textSize'][]).map((size) => {
-                const isActive = accessibility.textSize === size;
-                return (
-                  <Button
-                    key={size}
-                    variant={isActive ? 'primary' : 'secondary'}
-                    onClick={() => updateAccessibility({ textSize: size })}
-                  >
-                    {size === 'normal' ? 'Normal' : size === 'large' ? 'Large' : 'Extra Large'}
-                  </Button>
-                );
-              })}
+              {TEXT_SIZE_OPTIONS.map((size) => (
+                <Button
+                  key={size}
+                  variant={accessibility.textSize === size ? 'primary' : 'secondary'}
+                  onClick={() => updateAccessibility({ textSize: size })}
+                >
+                  {TEXT_SIZE_LABELS[size]}
+                </Button>
+              ))}
             </HStack>
           </Card>
         </section>

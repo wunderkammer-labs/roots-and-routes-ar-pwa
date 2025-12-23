@@ -62,27 +62,12 @@ const ICON_PATHS: Record<IconName, React.ReactNode> = {
 };
 
 export type IconProps = {
-  /**
-   * Name of the icon to render.
-   */
   name: IconName;
-  /**
-   * Accessible label announced to screen readers.
-   */
   label?: string;
-  /**
-   * Optional visual size (default 24px).
-   */
   size?: number;
-  /**
-   * Additional class name for styling hooks.
-   */
   className?: string;
 };
 
-/**
- * Inline SVG icon wrapper that maps semantic names to vector paths.
- */
 const Icon: React.FC<IconProps> = ({ name, label, size = 24, className }) => {
   const path = ICON_PATHS[name];
 

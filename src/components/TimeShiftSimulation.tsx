@@ -6,23 +6,17 @@ import Slider from '../ui/Slider';
 import Button from '../ui/Button';
 import HStack from '../layout/HStack';
 import { PlantDetails, Screen as ScreenType } from '../lib/types';
+import { generateId, sanitizeString } from '../lib/validation';
 
 const formatTemperature = (value: number): string =>
   `${value >= 0 ? '+' : ''}${value.toFixed(1)}°C`;
-const formatRainfall = (value: number): string => `${value >= 0 ? '+' : ''}${value.toFixed(0)}%`;
+
+const formatRainfall = (value: number): string =>
+  `${value >= 0 ? '+' : ''}${value.toFixed(0)}%`;
 
 export type TimeShiftSimulationProps = {
-  /**
-   * Current plant context for journal prefill.
-   */
   plant: PlantDetails | null;
-  /**
-   * Navigation helper.
-   */
   go: (screen: ScreenType) => void;
-  /**
-   * Appends a journal entry and persists it.
-   */
   addJournalEntry: (entry: {
     id: string;
     plantName: string;
@@ -32,15 +26,12 @@ export type TimeShiftSimulationProps = {
   }) => void;
 };
 
-const determineGaugeColor = (yieldScore: number): string => {
-  if (yieldScore >= 75) return 'var(--color-light-green)';
-  if (yieldScore >= 50) return 'var(--color-accent-gold)';
+const getGaugeColor = (score: number): string => {
+  if (score >= 75) return 'var(--color-light-green)';
+  if (score >= 50) return 'var(--color-accent-gold)';
   return 'var(--color-error)';
 };
 
-/**
- * Climate time-shift simulation allowing learners to adjust environmental variables.
- */
 const TimeShiftSimulation: React.FC<TimeShiftSimulationProps> = ({
   plant,
   go,
@@ -56,7 +47,7 @@ const TimeShiftSimulation: React.FC<TimeShiftSimulationProps> = ({
     return Math.max(0, Math.min(100, (tempScore + rainScore) / 2));
   }, [temperature, rainfall]);
 
-  const gaugeColor = determineGaugeColor(yieldEstimate);
+  const gaugeColor = getGaugeColor(yieldEstimate);
 
   const handleReset = () => {
     setTemperature(0);
@@ -70,11 +61,12 @@ const TimeShiftSimulation: React.FC<TimeShiftSimulationProps> = ({
       return;
     }
 
+    const notes = sanitizeString(observation) || `Yield estimate: ${yieldEstimate.toFixed(0)}%.`;
     addJournalEntry({
-      id: crypto.randomUUID(),
+      id: generateId(),
       plantName: plant.commonName ?? plant.name,
       route: 'stem',
-      notes: observation.trim() || `Yield estimate: ${yieldEstimate.toFixed(0)}%.`,
+      notes,
       standards: ['MS-LS2-2', 'HS-LS4-3'],
     });
     go('journal-entry');

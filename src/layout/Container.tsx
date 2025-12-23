@@ -18,27 +18,12 @@ const PADDING_MAP: Record<ContainerPadding, string> = {
 };
 
 export type ContainerProps = {
-  /**
-   * Constrains the maximum width based on predefined breakpoints.
-   */
   width?: ContainerWidth;
-  /**
-   * Applies internal padding using spacing tokens.
-   */
   padding?: ContainerPadding;
-  /**
-   * Additional class name for custom styling.
-   */
   className?: string;
-  /**
-   * Child content to render inside the container.
-   */
   children: React.ReactNode;
 };
 
-/**
- * Centers content horizontally and constrains width to the design breakpoints.
- */
 const Container: React.FC<ContainerProps> = ({
   width = 'md',
   padding = 'md',

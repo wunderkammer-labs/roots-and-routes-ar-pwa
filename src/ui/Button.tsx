@@ -37,31 +37,13 @@ const SIZE_MAP: Record<ButtonSize, React.CSSProperties> = {
 };
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  /**
-   * Controls primary, secondary, outline, or destructive styling.
-   */
   variant?: ButtonVariant;
-  /**
-   * Adjusts vertical sizing to meet touch targets.
-   */
   size?: ButtonSize;
-  /**
-   * Optional icon rendered before button text.
-   */
   leadingIcon?: React.ReactNode;
-  /**
-   * Optional icon rendered after button text.
-   */
   trailingIcon?: React.ReactNode;
-  /**
-   * Expands the button to fill the available horizontal space.
-   */
   fullWidth?: boolean;
 };
 
-/**
- * Token-driven button component with accessible focus and touch-target sizing.
- */
 const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',

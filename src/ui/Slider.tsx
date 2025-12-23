@@ -1,43 +1,16 @@
 import React, { useId } from 'react';
 
 export type SliderProps = {
-  /**
-   * Visible label describing the slider's purpose.
-   */
   label: string;
-  /**
-   * Current slider value (controlled).
-   */
   value: number;
-  /**
-   * Minimum value in the range.
-   */
   min: number;
-  /**
-   * Maximum value in the range.
-   */
   max: number;
-  /**
-   * Step increment for adjustments.
-   */
   step?: number;
-  /**
-   * Called when the slider value changes.
-   */
   onChange: (value: number) => void;
-  /**
-   * Optional descriptive helper text.
-   */
   description?: string;
-  /**
-   * Displayed alongside the current value.
-   */
   valueFormatter?: (value: number) => string;
 };
 
-/**
- * Accessible slider input honoring the 44px touch target requirement.
- */
 const Slider: React.FC<SliderProps> = ({
   label,
   value,

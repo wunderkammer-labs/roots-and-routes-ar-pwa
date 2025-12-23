@@ -14,19 +14,10 @@ const CULTURAL_TABS = [
 ];
 
 export type CulturalTabProps = {
-  /**
-   * Current plant context.
-   */
   plant: PlantDetails;
-  /**
-   * Navigation callback.
-   */
   go: (screen: ScreenType) => void;
 };
 
-/**
- * Cultural exploration view featuring narratives and media for the selected plant.
- */
 const CulturalTab: React.FC<CulturalTabProps> = ({ plant, go }) => {
   return (
     <Screen

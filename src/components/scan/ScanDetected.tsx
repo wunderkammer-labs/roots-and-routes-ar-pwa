@@ -6,19 +6,10 @@ import Button from '../../ui/Button';
 import { PlantDetails, Screen as ScreenType } from '../../lib/types';
 
 export type ScanDetectedProps = {
-  /**
-   * Navigates between screens in the flow.
-   */
   go: (screen: ScreenType) => void;
-  /**
-   * Current plant details to present.
-   */
   currentPlant: PlantDetails | null;
 };
 
-/**
- * Results view after detecting a plant, providing branching options.
- */
 const ScanDetected: React.FC<ScanDetectedProps> = ({ go, currentPlant }) => {
   if (!currentPlant) {
     return (

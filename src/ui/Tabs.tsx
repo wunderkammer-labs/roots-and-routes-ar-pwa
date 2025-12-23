@@ -1,42 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export type TabOption = {
-  /**
-   * Unique identifier for the tab.
-   */
   id: 'cultural' | 'stem';
-  /**
-   * Display label for the tab.
-   */
   label: string;
-  /**
-   * Optional helper text rendered below the label.
-   */
   description?: string;
 };
 
 export type TabsProps = {
-  /**
-   * Available tabs rendered in the list.
-   */
   tabs: TabOption[];
-  /**
-   * Currently selected tab id.
-   */
   activeId: TabOption['id'];
-  /**
-   * Change handler fired when a new tab is selected.
-   */
   onChange: (id: TabOption['id']) => void;
-  /**
-   * Renderer for the active tab panel content.
-   */
   renderPanel?: (id: TabOption['id']) => React.ReactNode;
 };
 
-/**
- * Accessible tabs component tuned for the Cultural / STEM route selector.
- */
 const Tabs: React.FC<TabsProps> = ({ tabs, activeId, onChange, renderPanel }) => {
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [focusId, setFocusId] = useState<TabOption['id']>(activeId);

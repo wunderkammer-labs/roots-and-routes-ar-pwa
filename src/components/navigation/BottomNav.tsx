@@ -27,9 +27,6 @@ const navButtonStyle = (active: boolean): React.CSSProperties => ({
   cursor: 'pointer',
 });
 
-/**
- * Reusable bottom navigation bar for primary flows.
- */
 const BottomNav: React.FC<BottomNavProps> = ({ items, active, onNavigate }) => {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>

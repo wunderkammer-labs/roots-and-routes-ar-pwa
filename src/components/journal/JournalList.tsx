@@ -9,13 +9,7 @@ import BottomNav from '../navigation/BottomNav';
 import { JournalEntryType, Screen as ScreenType } from '../../lib/types';
 
 export type JournalListProps = {
-  /**
-   * Existing journal entries.
-   */
   entries: JournalEntryType[];
-  /**
-   * Navigates to a target screen.
-   */
   go: (screen: ScreenType) => void;
 };
 
@@ -24,9 +18,6 @@ const ROUTE_LABEL: Record<JournalEntryType['route'], string> = {
   stem: 'STEM',
 };
 
-/**
- * Journal overview with quick creation entry points.
- */
 const JournalList: React.FC<JournalListProps> = ({ entries, go }) => {
   const hasEntries = entries.length > 0;
 

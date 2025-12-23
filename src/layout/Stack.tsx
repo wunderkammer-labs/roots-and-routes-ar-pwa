@@ -1,53 +1,25 @@
-import React from 'react';
-
-export type StackGap = 'none' | 'xs' | 'sm' | 'md' | 'lg';
-
-const GAP_MAP: Record<StackGap, string> = {
-  none: '0',
-  xs: 'var(--space-1)',
-  sm: 'var(--space-2)',
-  md: 'var(--space-3)',
-  lg: 'var(--space-4)',
-};
+import { CSSProperties, ElementType, ReactNode } from 'react';
+import { GAP_MAP, GapSize } from '../lib/constants';
 
 export type StackProps = {
-  /**
-   * Controls vertical spacing between items.
-   */
-  gap?: StackGap;
-  /**
-   * Horizontal alignment of children.
-   */
-  align?: React.CSSProperties['alignItems'];
-  /**
-   * Vertical justification of children.
-   */
-  justify?: React.CSSProperties['justifyContent'];
-  /**
-   * Optional HTML element tag.
-   */
-  as?: keyof JSX.IntrinsicElements;
-  /**
-   * Additional class names for styling hooks.
-   */
+  gap?: GapSize;
+  align?: CSSProperties['alignItems'];
+  justify?: CSSProperties['justifyContent'];
+  as?: ElementType;
   className?: string;
-  /**
-   * Stack content.
-   */
-  children: React.ReactNode;
+  style?: CSSProperties;
+  children: ReactNode;
 };
 
-/**
- * Vertical flex stack component governed by spacing tokens.
- */
-const Stack: React.FC<StackProps> = ({
+export default function Stack({
   gap = 'md',
   align,
   justify,
   as: Component = 'div',
   className,
+  style,
   children,
-}) => {
+}: StackProps) {
   return (
     <Component
       className={className}
@@ -57,11 +29,10 @@ const Stack: React.FC<StackProps> = ({
         alignItems: align,
         justifyContent: justify,
         gap: GAP_MAP[gap],
+        ...style,
       }}
     >
       {children}
     </Component>
   );
-};
-
-export default Stack;
+}

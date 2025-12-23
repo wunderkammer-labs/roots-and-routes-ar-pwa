@@ -9,20 +9,14 @@ import { Screen as ScreenType } from '../../lib/types';
 
 const PRIVACY_POINTS = [
   'No photos or location data leave your device.',
-  'Journal entries save to your device for offline learning.',
+  'Journal entries save locally for offline learning.',
   'Optional analytics will always be opt-in when available.',
 ];
 
 export type PrivacyStartProps = {
-  /**
-   * Moves the learner into the home screen to start exploring.
-   */
   go: (screen: ScreenType) => void;
 };
 
-/**
- * Introduces privacy expectations and transitions learners into the app.
- */
 const PrivacyStart: React.FC<PrivacyStartProps> = ({ go }) => {
   return (
     <Screen

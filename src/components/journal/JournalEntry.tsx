@@ -6,6 +6,7 @@ import Button from '../../ui/Button';
 import HStack from '../../layout/HStack';
 import { PlantDetails, Screen as ScreenType } from '../../lib/types';
 import { toCsv } from '../../lib/csv';
+import { generateId, sanitizeString } from '../../lib/validation';
 
 const STANDARDS = [
   'NGSS: MS-LS2-2',
@@ -17,13 +18,7 @@ const STANDARDS = [
 ] as const;
 
 export type JournalEntryProps = {
-  /**
-   * Latest scanned plant to prefill context.
-   */
   plant: PlantDetails | null;
-  /**
-   * Persists a journal entry.
-   */
   addJournalEntry: (entry: {
     id: string;
     plantName: string;
@@ -31,9 +26,6 @@ export type JournalEntryProps = {
     notes: string;
     standards?: string[];
   }) => void;
-  /**
-   * Navigation callback.
-   */
   go: (screen: ScreenType) => void;
 };
 
@@ -42,19 +34,11 @@ const downloadCsv = (content: string, filename: string) => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.setAttribute('download', filename);
+  link.download = filename;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
-};
-
-const generateEntryId = (): string => {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-
-  return `journal-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
 
 const JournalEntry: React.FC<JournalEntryProps> = ({ plant, addJournalEntry, go }) => {
@@ -85,26 +69,22 @@ const JournalEntry: React.FC<JournalEntryProps> = ({ plant, addJournalEntry, go 
   };
 
   const handleSave = () => {
-    if (!canSave) {
-      return;
-    }
+    if (!canSave) return;
 
     addJournalEntry({
-      id: generateEntryId(),
-      plantName: plantName.trim(),
+      id: generateId(),
+      plantName: sanitizeString(plantName),
       route,
-      notes: notes.trim(),
+      notes: sanitizeString(notes),
       standards: standards.length > 0 ? standards : undefined,
     });
     go('journal-list');
   };
 
   const handleCsvExport = () => {
-    if (!canSave) {
-      return;
-    }
-
-    downloadCsv(csvContent, `${plantName || 'journal-entry'}.csv`);
+    if (!canSave) return;
+    const safeName = sanitizeString(plantName, 100).replace(/[^a-zA-Z0-9-_]/g, '_') || 'entry';
+    downloadCsv(csvContent, `${safeName}.csv`);
   };
 
   return (

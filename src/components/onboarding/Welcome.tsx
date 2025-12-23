@@ -5,17 +5,11 @@ import Button from '../../ui/Button';
 import { Screen } from '../../lib/types';
 
 export type WelcomeProps = {
-  /**
-   * Navigates to the specified screen in the onboarding flow.
-   */
   go: (screen: Screen) => void;
 };
 
 const PROGRESS_STEPS = 4;
 
-/**
- * Entry welcome screen introducing the Roots & Routes AR experience.
- */
 const Welcome: React.FC<WelcomeProps> = ({ go }) => {
   const mainId = useId();
 

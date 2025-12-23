@@ -7,19 +7,10 @@ import { PlantDetails, Screen as ScreenType } from '../../lib/types';
 const DETECTION_DELAY = 2000;
 
 export type ScanDetectingProps = {
-  /**
-   * Navigates to the provided screen.
-   */
   go: (screen: ScreenType) => void;
-  /**
-   * Sets the current plant details once identified.
-   */
   setCurrentPlant: (plant: PlantDetails) => void;
 };
 
-/**
- * Shows interim detecting state while mock plant information is loading.
- */
 const ScanDetecting: React.FC<ScanDetectingProps> = ({ go, setCurrentPlant }) => {
   useEffect(() => {
     const timeout = window.setTimeout(() => {

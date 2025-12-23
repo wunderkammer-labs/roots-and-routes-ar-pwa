@@ -7,19 +7,10 @@ import Icon from '../../ui/Icon';
 import { Screen as ScreenType } from '../../lib/types';
 
 export type ScanIdleProps = {
-  /**
-   * Navigates to the provided screen.
-   */
   go: (screen: ScreenType) => void;
-  /**
-   * Indicates if camera access has been granted.
-   */
   cameraGranted: boolean;
 };
 
-/**
- * Idle scan state prompting the learner to begin scanning or resolve camera access.
- */
 const ScanIdle: React.FC<ScanIdleProps> = ({ go, cameraGranted }) => {
   useEffect(() => {
     if (!cameraGranted) {

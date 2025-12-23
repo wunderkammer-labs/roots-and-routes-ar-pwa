@@ -19,35 +19,14 @@ const TONE_MAP: Record<CardTone, React.CSSProperties> = {
 };
 
 export type CardProps = {
-  /**
-   * Title displayed at the top of the card.
-   */
   title?: string;
-  /**
-   * Optional supporting text shown beneath the title.
-   */
   subtitle?: string;
-  /**
-   * Additional content rendered inside the card.
-   */
   children?: React.ReactNode;
-  /**
-   * Optional action area rendered in the footer.
-   */
   actions?: React.ReactNode;
-  /**
-   * Adjusts background styling for contextual messaging.
-   */
   tone?: CardTone;
-  /**
-   * Accessible label when the card is interactive.
-   */
   ariaLabel?: string;
 };
 
-/**
- * Flexible surface component backed by design tokens for elevation and radii.
- */
 const Card: React.FC<CardProps> = ({
   title,
   subtitle,

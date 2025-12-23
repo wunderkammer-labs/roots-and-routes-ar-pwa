@@ -2,37 +2,16 @@ import React, { useId } from 'react';
 import Container from './Container';
 
 export type ScreenProps = {
-  /**
-   * Accessible page title for the main heading.
-   */
   title: string;
-  /**
-   * Optional descriptive text for the page heading.
-   */
   description?: string;
-  /**
-   * Slot for top-aligned content such as app bars.
-   */
   header?: React.ReactNode;
-  /**
-   * Primary screen content.
-   */
   children: React.ReactNode;
-  /**
-   * Optional persistent bottom navigation region.
-   */
   bottomNav?: React.ReactNode;
-  /**
-   * Label for the skip-link. Defaults to "Skip to content".
-   */
   skipLinkLabel?: string;
 };
 
 const DEFAULT_SKIP_TARGET = 'main-content';
 
-/**
- * Responsive app screen shell with skip-link, heading, and optional navigation regions.
- */
 const Screen: React.FC<ScreenProps> = ({
   title,
   description,

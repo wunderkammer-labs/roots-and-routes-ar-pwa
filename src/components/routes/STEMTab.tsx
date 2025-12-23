@@ -14,19 +14,10 @@ const STEM_TABS = [
 ];
 
 export type STEMTabProps = {
-  /**
-   * Current plant data.
-   */
   plant: PlantDetails;
-  /**
-   * Navigation callback.
-   */
   go: (screen: ScreenType) => void;
 };
 
-/**
- * STEM-focused plant exploration highlighting biology and systems thinking.
- */
 const STEMTab: React.FC<STEMTabProps> = ({ plant, go }) => {
   return (
     <Screen

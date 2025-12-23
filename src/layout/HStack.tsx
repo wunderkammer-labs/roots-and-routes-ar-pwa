@@ -1,57 +1,27 @@
-import React from 'react';
-import { StackGap } from './Stack';
-
-const GAP_MAP: Record<StackGap, string> = {
-  none: '0',
-  xs: 'var(--space-1)',
-  sm: 'var(--space-2)',
-  md: 'var(--space-3)',
-  lg: 'var(--space-4)',
-};
+import { CSSProperties, ElementType, ReactNode } from 'react';
+import { GAP_MAP, GapSize } from '../lib/constants';
 
 export type HStackProps = {
-  /**
-   * Controls horizontal spacing between items.
-   */
-  gap?: StackGap;
-  /**
-   * Vertical alignment of children.
-   */
-  align?: React.CSSProperties['alignItems'];
-  /**
-   * Horizontal justification of children.
-   */
-  justify?: React.CSSProperties['justifyContent'];
-  /**
-   * Optional element tag.
-   */
-  as?: keyof JSX.IntrinsicElements;
-  /**
-   * Enables wrapping for responsive layouts.
-   */
+  gap?: GapSize;
+  align?: CSSProperties['alignItems'];
+  justify?: CSSProperties['justifyContent'];
+  as?: ElementType;
   wrap?: boolean;
-  /**
-   * Additional class name.
-   */
   className?: string;
-  /**
-   * Content nodes.
-   */
-  children: React.ReactNode;
+  style?: CSSProperties;
+  children: ReactNode;
 };
 
-/**
- * Horizontal flex stack that respects spacing tokens and supports wrapping.
- */
-const HStack: React.FC<HStackProps> = ({
+export default function HStack({
   gap = 'md',
   align = 'center',
   justify,
   wrap = false,
   as: Component = 'div',
   className,
+  style,
   children,
-}) => {
+}: HStackProps) {
   return (
     <Component
       className={className}
@@ -62,11 +32,10 @@ const HStack: React.FC<HStackProps> = ({
         justifyContent: justify,
         gap: GAP_MAP[gap],
         flexWrap: wrap ? 'wrap' : 'nowrap',
+        ...style,
       }}
     >
       {children}
     </Component>
   );
-};
-
-export default HStack;
+}

@@ -5,13 +5,14 @@ import Card from '../ui/Card';
 import Button from '../ui/Button';
 import HStack from '../layout/HStack';
 import { AccessibilitySettings, Screen as ScreenType } from '../lib/types';
+import { TEXT_SIZE_OPTIONS, TEXT_SIZE_LABELS, ThemeMode } from '../lib/constants';
 import BottomNav from './navigation/BottomNav';
 
 export type SettingsProps = {
   accessibility: AccessibilitySettings;
   updateAccessibility: (updates: Partial<AccessibilitySettings>) => void;
-  theme: 'light' | 'dark';
-  setTheme: (mode: 'light' | 'dark') => void;
+  theme: ThemeMode;
+  setTheme: (mode: ThemeMode) => void;
   resetApp: () => void;
   go: (screen: ScreenType) => void;
 };
@@ -44,13 +45,13 @@ const Settings: React.FC<SettingsProps> = ({
       <Stack gap="lg">
         <Card title="Text size">
           <HStack gap="sm" wrap>
-            {(['normal', 'large', 'xl'] as const).map((size) => (
+            {TEXT_SIZE_OPTIONS.map((size) => (
               <Button
                 key={size}
                 variant={accessibility.textSize === size ? 'primary' : 'secondary'}
                 onClick={() => updateAccessibility({ textSize: size })}
               >
-                {size === 'normal' ? 'Normal' : size === 'large' ? 'Large' : 'Extra Large'}
+                {TEXT_SIZE_LABELS[size]}
               </Button>
             ))}
           </HStack>

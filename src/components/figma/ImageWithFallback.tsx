@@ -1,31 +1,13 @@
 import React, { useState } from 'react';
 
 export type ImageWithFallbackProps = {
-  /**
-   * Primary image source.
-   */
   src: string;
-  /**
-   * Alternative text describing the image.
-   */
   alt: string;
-  /**
-   * Fallback image used when the primary source fails.
-   */
   fallbackSrc: string;
-  /**
-   * Optional class name for styling hooks.
-   */
   className?: string;
-  /**
-   * Optional aspect ratio styling (`e.g. 16/9`).
-   */
   aspectRatio?: string;
 };
 
-/**
- * Displays an image with graceful fallback support.
- */
 const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   src,
   alt,
@@ -39,6 +21,7 @@ const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
     <figure
       className={className}
       style={{
+        margin: 0,
         width: '100%',
         overflow: 'hidden',
         borderRadius: 'var(--radius-base)',
