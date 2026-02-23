@@ -11,8 +11,7 @@ import { generateId, sanitizeString } from '../lib/validation';
 const formatTemperature = (value: number): string =>
   `${value >= 0 ? '+' : ''}${value.toFixed(1)}°C`;
 
-const formatRainfall = (value: number): string =>
-  `${value >= 0 ? '+' : ''}${value.toFixed(0)}%`;
+const formatRainfall = (value: number): string => `${value >= 0 ? '+' : ''}${value.toFixed(0)}%`;
 
 export type TimeShiftSimulationProps = {
   plant: PlantDetails | null;

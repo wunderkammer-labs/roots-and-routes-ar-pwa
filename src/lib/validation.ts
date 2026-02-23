@@ -1,14 +1,10 @@
 import { AccessibilitySettings, JournalEntryType } from './types';
 
-export const isValidTextSize = (
-  value: unknown,
-): value is AccessibilitySettings['textSize'] => {
+export const isValidTextSize = (value: unknown): value is AccessibilitySettings['textSize'] => {
   return value === 'normal' || value === 'large' || value === 'xl';
 };
 
-export const isAccessibilitySettings = (
-  value: unknown,
-): value is AccessibilitySettings => {
+export const isAccessibilitySettings = (value: unknown): value is AccessibilitySettings => {
   if (!value || typeof value !== 'object') {
     return false;
   }
@@ -39,9 +35,7 @@ export const isJournalEntry = (value: unknown): value is JournalEntryType => {
   );
 };
 
-export const isJournalEntryArray = (
-  value: unknown,
-): value is JournalEntryType[] => {
+export const isJournalEntryArray = (value: unknown): value is JournalEntryType[] => {
   return Array.isArray(value) && value.every(isJournalEntry);
 };
 

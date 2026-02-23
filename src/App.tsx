@@ -2,11 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AccessibilitySettings, JournalEntryType, PlantDetails, Screen } from './lib/types';
 import { ALLOWED_TRANSITIONS } from './lib/navigation';
 import { STORAGE_KEYS, ThemeMode } from './lib/constants';
-import {
-  isAccessibilitySettings,
-  isJournalEntryArray,
-  isThemeMode,
-} from './lib/validation';
+import { isAccessibilitySettings, isJournalEntryArray, isThemeMode } from './lib/validation';
 import {
   enableDarkMode,
   setNarrationEnabled,
@@ -135,15 +131,9 @@ const App: React.FC = () => {
     setCameraGranted(granted);
   }, []);
 
-  const addJournalEntry = useCallback(
-    (entry: Omit<JournalEntryType, 'date'>) => {
-      setJournal((prev) => [
-        ...prev,
-        { ...entry, date: new Date().toISOString() },
-      ]);
-    },
-    [],
-  );
+  const addJournalEntry = useCallback((entry: Omit<JournalEntryType, 'date'>) => {
+    setJournal((prev) => [...prev, { ...entry, date: new Date().toISOString() }]);
+  }, []);
 
   const resetApp = useCallback(() => {
     setCurrentScreen('welcome');

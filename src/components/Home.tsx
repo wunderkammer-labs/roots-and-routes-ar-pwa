@@ -8,7 +8,12 @@ import Button from '../ui/Button';
 import Icon from '../ui/Icon';
 import ImageWithFallback from './figma/ImageWithFallback';
 import { AccessibilitySettings, Screen as ScreenType } from '../lib/types';
-import { TEXT_SIZE_OPTIONS, TEXT_SIZE_LABELS, ThemeMode, DEFAULT_NAV_ITEMS } from '../lib/constants';
+import {
+  TEXT_SIZE_OPTIONS,
+  TEXT_SIZE_LABELS,
+  ThemeMode,
+  DEFAULT_NAV_ITEMS,
+} from '../lib/constants';
 
 export type HomeProps = {
   go: (screen: ScreenType) => void;
